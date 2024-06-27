@@ -1,13 +1,13 @@
 pipeline {
     environment {
-        IMAGEN = "josedom24/myapp"
+        IMAGEN = "geobas/pin1"
         USUARIO = 'USER_DOCKERHUB'
     }
     agent any
     stages {
         stage('Clone') {
             steps {
-                git branch: "main", url: 'https://github.com/josedom24/jenkins_docker.git'
+                git branch: "maim", url: 'https://github.com/geobasti222/jenkins_docker.git'
             }
         }
         stage('Build') {
@@ -27,7 +27,7 @@ pipeline {
                     }
             }
         }
-        
+
         stage('Deploy') {
             steps {
                 script {
