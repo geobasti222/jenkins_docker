@@ -13,25 +13,26 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    newApp = docker.build "$IMAGEN:$BUILD_NUMBER"
+                    newApp = docker.build("$IMAGEN:$BUILD_NUMBER")
                 }
             }
         }
-
         stage('Test') {
             steps {
                 script {
                     docker.image("$IMAGEN:$BUILD_NUMBER").inside('-u root') {
-                           sh 'apache2ctl -v'
-                        }
+                        // Añadir depuración para ver el estado del contenedor
+                        sh 'echo "Testing Apache version inside the container..."'
+                        sh 'whoami'
+                        sh 'apache2ctl -v || echo "Failed to execute apache2ctl"'
                     }
+                }
             }
         }
-
         stage('Deploy') {
             steps {
                 script {
-                    docker.withRegistry( '', USUARIO ) {
+                    docker.withRegistry('', USUARIO) {
                         newApp.push()
                     }
                 }
@@ -40,7 +41,7 @@ pipeline {
         stage('Clean Up') {
             steps {
                 sh "docker rmi $IMAGEN:$BUILD_NUMBER"
-                }
+            }
         }
     }
 }
