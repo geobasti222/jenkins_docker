@@ -1,47 +1,63 @@
 pipeline {
-    environment {
-        IMAGEN = "geobas/pin1"
-        USUARIO = 'USER_DOCKERHUB'
-    }
     agent any
+
+    environment {
+        DOCKER_REGISTRY = 'geobas'
+        IMAGE_NAME = 'pruebapin'
+        TAG = 'latest'
+    }
+
     stages {
-        stage('Clone') {
+        stage('Checkout') {
             steps {
-                git branch: "main", url: 'https://github.com/geobasti222/jenkins_docker.git'
+                // Clona tu repositorio
+                git 'https://github.com/geobasti222/jenkins_docker.git'
             }
         }
-        stage('Build') {
+
+        stage('Build Docker Image') {
             steps {
                 script {
-                    newApp = docker.build("$IMAGEN:$BUILD_NUMBER")
+                    docker.build("${DOCKER_REGISTRY}/${IMAGE_NAME}:${TAG}")
                 }
             }
         }
-        // stage('Test') {
-        //     steps {
-        //         script {
-        //             docker.image("$IMAGEN:$BUILD_NUMBER").inside('-u root') {
-        //                 // Añadir depuración para ver el estado del contenedor
-        //                 sh 'echo "Testing Apache version inside the container..."'
-        //                 sh 'whoami'
-        //                 sh 'apache2ctl -v || echo "Failed to execute apache2ctl"'
-        //             }
-        //         }
-        //     }
-        // }
-        stage('Deploy') {
+
+        stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('', USUARIO) {
-                        newApp.push()
+                    withDockerRegistry(credentialsId: 'docker-registry-credentials', url: "https://${DOCKER_REGISTRY}") {
+                        docker.image("${DOCKER_REGISTRY}/${IMAGE_NAME}:${TAG}").push()
                     }
                 }
             }
         }
-        stage('Clean Up') {
+
+        stage('Scan Docker Image') {
             steps {
-                sh "docker rmi $IMAGEN:$BUILD_NUMBER"
+                script {
+                    sh """
+                    docker pull aquasec/trivy:latest
+                    docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $WORKSPACE:/root/.cache/ aquasec/trivy image ${DOCKER_REGISTRY}/${IMAGE_NAME}:${TAG}
+                    """
+                }
             }
         }
     }
+
+    post {
+        always {
+            // Limpiar las imágenes de Docker
+            script {
+                sh "docker rmi ${DOCKER_REGISTRY}/${IMAGE_NAME}:${TAG}"
+            }
+        }
+        success {
+            echo 'El pipeline ha terminado con éxito.'
+        }
+        failure {
+            echo 'El pipeline ha fallado.'
+        }
+    }
 }
+
