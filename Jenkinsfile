@@ -7,7 +7,7 @@ pipeline {
     stages {
         stage('Clone') {
             steps {
-                git branch: "maim", url: 'https://github.com/geobasti222/jenkins_docker.git'
+                git branch: "main", url: 'https://github.com/geobasti222/jenkins_docker.git'
             }
         }
         stage('Build') {
