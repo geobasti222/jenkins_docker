@@ -5,7 +5,8 @@ pipeline {
         DOCKER_REGISTRY = 'geobas'
         IMAGE_NAME = 'pruebapin'
         TAG = 'latest'
-
+        USERNAME='geobas'
+        PASSWORD='Geoyana1301'
     }
 
     stages {
