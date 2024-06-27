@@ -20,7 +20,6 @@ pipeline {
         stage('Scan Image') {
             steps {
                 script {
-                    // Ejemplo usando Trivy para escanear la imagen
                     sh "trivy --exit-code 0 --severity HIGH --no-progress $IMAGEN:$BUILD_NUMBER"
                 }
             }
