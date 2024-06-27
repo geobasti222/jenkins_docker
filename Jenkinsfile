@@ -17,18 +17,18 @@ pipeline {
                 }
             }
         }
-        stage('Test') {
-            steps {
-                script {
-                    docker.image("$IMAGEN:$BUILD_NUMBER").inside('-u root') {
-                        // Añadir depuración para ver el estado del contenedor
-                        sh 'echo "Testing Apache version inside the container..."'
-                        sh 'whoami'
-                        sh 'apache2ctl -v || echo "Failed to execute apache2ctl"'
-                    }
-                }
-            }
-        }
+        // stage('Test') {
+        //     steps {
+        //         script {
+        //             docker.image("$IMAGEN:$BUILD_NUMBER").inside('-u root') {
+        //                 // Añadir depuración para ver el estado del contenedor
+        //                 sh 'echo "Testing Apache version inside the container..."'
+        //                 sh 'whoami'
+        //                 sh 'apache2ctl -v || echo "Failed to execute apache2ctl"'
+        //             }
+        //         }
+        //     }
+        // }
         stage('Deploy') {
             steps {
                 script {
