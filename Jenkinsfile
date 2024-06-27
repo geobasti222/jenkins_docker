@@ -11,7 +11,8 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Clona tu repositorio
-                git 'https://github.com/geobasti222/jenkins_docker.git'
+                git branch: "main", url: 'https://github.com/geobasti222/jenkins_docker.git'
+
             }
         }
 
