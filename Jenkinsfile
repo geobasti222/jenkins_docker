@@ -20,7 +20,7 @@ pipeline {
         stage('Scan Image') {
             steps {
                 script {
-                    sh "trivy --exit-code 0 --severity HIGH --no-progress $IMAGEN:$BUILD_NUMBER"
+                    sh "/usr/bin/trivy --exit-code 0 --severity HIGH --no-progress $IMAGEN:$BUILD_NUMBER"
                 }
             }
         }
