@@ -5,6 +5,8 @@ pipeline {
         DOCKER_REGISTRY = 'geobas'
         IMAGE_NAME = 'pruebapin'
         TAG = 'latest'
+        USERNAME='geobas'
+        PASSWORD='Geoyana1301'
     }
 
     stages {
@@ -24,15 +26,23 @@ pipeline {
             }
         }
 
-        stage('Push Docker Image') {
-            steps {
-                script {
-                    withDockerRegistry(credentialsId: 'USER_DOCKERHUB', url: "https://${DOCKER_REGISTRY}") {
-                        docker.image("${DOCKER_REGISTRY}/${IMAGE_NAME}:${TAG}").push()
-                    }
-                }
+stage('Push Docker Image') {
+    steps {
+        script {
+            withCredentials([usernamePassword(credentialsId: 'docker-registry-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                def dockerRegistryUrl = "https://${DOCKER_REGISTRY}"
+                def dockerLoginCmd = "docker login -u ${USERNAME} -p ${PASSWORD} ${dockerRegistryUrl}"
+
+                // Use --password-stdin for improved security
+                sh "echo ${PASSWORD} | ${dockerLoginCmd} --password-stdin"
+
+                // Now you can push your Docker image
+                docker.image("${DOCKER_REGISTRY}/${IMAGE_NAME}:${TAG}").push()
             }
         }
+    }
+}
+
 
         stage('Scan Docker Image') {
             steps {
